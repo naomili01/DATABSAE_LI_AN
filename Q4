@@ -1,0 +1,39 @@
+import pymysql
+
+connection = pymysql.connect(
+    user='410962029',
+    password='410962029',
+    host='127.0.0.1',
+    database='410962029',
+    port=3306
+)
+
+cursor = connection.cursor()
+
+query = """
+SELECT
+    MONTH(s.date) AS SaleMonth,
+    COUNT(*) AS TotalSales
+FROM
+    Sale s
+JOIN
+    Vehicle v ON s.VIN = v.VIN
+JOIN
+    Model m ON v.modelID = m.ModelID
+WHERE
+    m.bodystyle = 'SUV'
+GROUP BY
+    SaleMonth
+ORDER BY
+    TotalSales DESC
+LIMIT 1;  
+"""
+
+cursor.execute(query)
+
+result = cursor.fetchall()
+for row in result:
+    print(f"SUV在哪個月份銷售最好: {row[0]}月")
+
+cursor.close()
+connection.close()
