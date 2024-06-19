@@ -1,0 +1,50 @@
+import pymysql
+from datetime import datetime, timedelta
+
+connection = pymysql.connect(
+        user='410962029',
+        password='410962029',
+        host='127.0.0.1',
+        database='410962029',
+        port=3306
+    )
+try:
+    cursor = connection.cursor()
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=365)
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    end_date_str = end_date.strftime('%Y-%m-%d')
+
+    query = f"""
+    SELECT
+        d.name AS DealerName,
+        SUM(s.amount) AS TotalSalesAmount
+    FROM
+        Dealer d
+    JOIN
+        Sale s ON d.DealerID = s.DealerID
+    WHERE
+        s.date BETWEEN '{start_date_str}' AND '{end_date_str}'
+    GROUP BY
+        d.name
+    ORDER BY
+        TotalSalesAmount DESC
+    LIMIT 1;
+    """
+
+    cursor.execute(query)
+
+    result = cursor.fetchone()
+    if result:
+        dealer_name = result[0]
+        total_sales_amount = result[1]
+        print(f"過去一年銷售額最高的經銷商: {dealer_name}，銷售總金額:${total_sales_amount/32:.2f}")
+    else:
+        print("未找到符合條件的結果。")
+
+except pymysql.MySQLError as e:
+    print(f"Error: {e}")
+
+finally:
+    cursor.close()
+    connection.close()
