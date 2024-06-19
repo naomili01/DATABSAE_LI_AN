@@ -1,14 +1,13 @@
 import pymysql
 
-try:
-    connection = pymysql.connect(
+connection = pymysql.connect(
         user='410962029',
         password='410962029',
         host='127.0.0.1',
         database='410962029',
         port=3306
     )
-
+try:
     cursor = connection.cursor()
 
     supplier_id = 'sup03'
