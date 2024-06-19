@@ -1,0 +1,48 @@
+import pymysql
+
+try:
+    connection = pymysql.connect(
+        user='410962029',
+        password='410962029',
+        host='127.0.0.1',
+        database='410962029',
+        port=3306
+    )
+
+    cursor = connection.cursor()
+
+    supplier_id = 'sup03'
+    factory_id = 'fac03'  
+    start_date = '2023-11-01'
+    end_date = '2024-01-01'
+
+    query = f"""
+    SELECT s.VIN, s.CustomerID
+    FROM Sale s
+    JOIN Vehicle v ON s.VIN = v.VIN
+    JOIN Factory f ON v.FactoryID = f.FactoryID
+    JOIN Supplier sup ON f.SupplierID = sup.SupplierID
+    WHERE sup.SupplierID = '{supplier_id}'
+    AND f.FactoryID = '{factory_id}'
+    AND v.Transmission IS NOT NULL
+    AND s.date BETWEEN '{start_date}' AND '{end_date}'
+    """
+
+    cursor.execute(query)
+    results = cursor.fetchall()
+
+    if results:
+        print("在2023-11-01到2024-01-01之間供應商Getreg提供有缺陷變速箱的汽車 VIN 以及該汽車的銷售客戶(供應商的工廠Blue Factory )")
+        for row in results:
+            vin = row[0]
+            customer_id = row[1]
+            print(f"VIN: {vin}, 銷售給的客戶ID: {customer_id}")
+    else:
+        print("未找到符合條件的記錄。")
+
+except pymysql.MySQLError as e:
+    print(f"Error: {e}")
+
+finally:
+    cursor.close()
+    connection.close()
