@@ -1,0 +1,39 @@
+import pymysql
+import datetime
+
+connection = pymysql.connect(
+    user='410962029',
+    password='410962029',
+    host='127.0.0.1',
+    database='410962029',
+    port=3306
+)
+
+cursor = connection.cursor()
+
+query = """
+SELECT
+    i.DealerID,
+    d.Name,
+    AVG(DATEDIFF(s.date, i.startdate)) AS AverageInventoryTime
+FROM
+    Inventory i
+JOIN
+    Sale s ON i.VIN = s.VIN
+JOIN
+    Dealer d ON i.DealerID = d.DealerID
+GROUP BY
+    i.DealerID
+ORDER BY
+    AverageInventoryTime DESC
+LIMIT 1; 
+"""
+
+cursor.execute(query)
+
+result = cursor.fetchall()
+for row in result:
+    print(f"平均庫存時間最長經銷商-DealerID:{row[0]}, 經銷商: {row[1]}, Average Inventory Time: {row[2]} days")
+
+cursor.close()
+connection.close()
