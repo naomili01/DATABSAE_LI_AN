@@ -7,6 +7,7 @@ connection = pymysql.connect(
         database='410962029',
         port=3306
     )
+
 try:
     cursor = connection.cursor()
 
