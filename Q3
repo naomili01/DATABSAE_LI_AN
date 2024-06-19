@@ -1,0 +1,51 @@
+import pymysql
+from datetime import datetime, timedelta
+
+connection = pymysql.connect(
+        user='410962029',
+        password='410962029',
+        host='127.0.0.1',
+        database='410962029',
+        port=3306
+    )
+try:
+    cursor = connection.cursor()
+
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=365)
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    end_date_str = (end_date - timedelta(days=1)).strftime('%Y-%m-%d')
+
+    query = f"""
+    SELECT
+        b.name AS BrandName,
+        SUM(s.amount) / SUM(s.quantity) AS AverageUnitSales
+    FROM
+        Brand b
+    JOIN
+        Sale s ON b.BrandID = s.BrandID
+    WHERE
+        s.date BETWEEN '{start_date_str}' AND '{end_date_str}'
+    GROUP BY
+        b.name
+    ORDER BY
+        AverageUnitSales DESC
+    LIMIT 2;
+    """
+
+    cursor.execute(query)
+
+    result = cursor.fetchall()
+    if result:
+        print("the top 2 brands by unit sales in the past year:")
+        for rank, row in enumerate(result, start=1):
+            print(f"{rank}. {row[0]} - unit sales: ${row[1]/32:.2f}")
+    else:
+        print("未找到符合條件的结果。")
+
+except pymysql.MySQLError as e:
+    print(f"Error: {e}")
+
+finally:
+    cursor.close()
+    connection.close()
