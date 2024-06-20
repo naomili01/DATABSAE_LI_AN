@@ -13,13 +13,14 @@ try:
 
     end_date = datetime.now().date()
     start_date = end_date - timedelta(days=365)
+
     start_date_str = start_date.strftime('%Y-%m-%d')
-    end_date_str = (end_date - timedelta(days=1)).strftime('%Y-%m-%d')
+    end_date_str = end_date.strftime('%Y-%m-%d')
 
     query = f"""
     SELECT
         b.name AS BrandName,
-        SUM(s.amount) / SUM(s.quantity) AS AverageUnitSales
+        SUM(s.quantity) AS TotalUnitSales
     FROM
         Brand b
     JOIN
@@ -29,7 +30,7 @@ try:
     GROUP BY
         b.name
     ORDER BY
-        AverageUnitSales DESC
+        TotalUnitSales DESC
     LIMIT 2;
     """
 
@@ -37,11 +38,11 @@ try:
 
     result = cursor.fetchall()
     if result:
-        print("the top 2 brands by unit sales in the past year:")
-        for rank, row in enumerate(result, start=1):
-            print(f"{rank}. {row[0]} - unit sales: ${row[1]/32:.2f}")
+        print("過去一年中按單位銷量計算的前兩名品牌:")
+        for index, row in enumerate(result, start=1):
+            print(f"第{index}名:{row[0]} 總銷量: {row[1]}")
     else:
-        print("未找到符合條件的结果。")
+        print("未找到符合條件的結果。")
 
 except pymysql.MySQLError as e:
     print(f"Error: {e}")
